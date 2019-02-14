@@ -20,6 +20,9 @@ Modifiers: David Feinzimer, Tim Parks
  */
 
 #include <Stepper.h>
+#include <Wire.h>
+#include "/home/df/Documents/apps/arduino-1.8.8-linux64/arduino-1.8.8/libraries/Adafruit_GFX.h"
+#include "/home/df/Documents/apps/arduino-1.8.8-linux64/arduino-1.8.8/libraries/Adafruit_SSD1306.h"
 
 const int stepsPerRevolution = 360;  // change this to fit the number of steps per revolution for your motor
 
