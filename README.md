@@ -19,6 +19,9 @@ CSUF CS senior design project with ESP32, FreeRTOS focus
         2) Ensure Arduino IDE is using correct profile; e.g. ESP32vn IoT Uno
         3) Trouble writing to the device?
             `sudo chmod 777 /dev/ttyUSB0`
+        4) make menuconfig fails:
+             sudo apt install flex
+             sudo apt install bison
 
     Windows
         To be continued...
