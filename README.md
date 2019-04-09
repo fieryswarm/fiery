@@ -13,6 +13,12 @@ CSUF CS senior design project with ESP32, FreeRTOS focus
     Windows:
         https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-windows-instructions/
 
+## Setup:
+
+- `pip install pyserial`
+
+- `pip install esptool`
+
 ## Common Problems & Solutions:
     Linux
         1) Ensure Arduino IDE connected to correct port; e.g. /dev/ttyUSB0
