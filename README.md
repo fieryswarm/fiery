@@ -19,6 +19,11 @@ CSUF CS senior design project with ESP32, FreeRTOS focus
 
 - `pip install esptool`
 
+## Thing #'s:
+
+- Tim: `0`
+- David: `1`
+
 ## Common Problems & Solutions:
     Linux
         1) Ensure Arduino IDE connected to correct port; e.g. /dev/ttyUSB0
