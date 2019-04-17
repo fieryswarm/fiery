@@ -44,8 +44,8 @@ void setup() {
 
 void turnaround() {
   Serial.println("Start in a stopped state");
-  ledcWrite(driveChannel, 0);
-  ledcWrite(turnChannel, 0);
+  ledcWrite(driveChannel, 3);
+  ledcWrite(turnChannel, 3);
 
   Serial.println("Prepare wheels for right turn");
   digitalWrite(turn_direction, LOW);    // Right:     L   Left:     H
@@ -54,17 +54,20 @@ void turnaround() {
   digitalWrite(drive_direction, HIGH);   // Forward:   L   Reverse:  H
 
   Serial.println("Apply power to turning motors");
-  ledcWrite(turnChannel, 120);
+  ledcWrite(turnChannel, 200);
+
+  Serial.println("Run turning motors for 1 second");
+  delay(1000);
 
   Serial.println("Apply power to drive motors");
-  ledcWrite(driveChannel, 120);
+  ledcWrite(driveChannel, 200);
 
-  Serial.println("Run all motors for 3 seconds");
-  delay(3);
+  Serial.println("Run all motors for 1.5 seconds");
+  delay(1500);
 
   Serial.println("Kill all motors");
-  ledcWrite(driveChannel, 0);
-  ledcWrite(turnChannel, 0);
+  ledcWrite(driveChannel, 3);
+  ledcWrite(turnChannel, 3);
 
   Serial.println("Prepare wheels for left turn");
   digitalWrite(turn_direction, HIGH);    // Right:     L   Left:     H
@@ -73,17 +76,20 @@ void turnaround() {
   digitalWrite(drive_direction, LOW);   // Forward:   L   Reverse:  H
 
   Serial.println("Apply power to turning motors");
-  ledcWrite(turnChannel, 120);
+  ledcWrite(turnChannel, 200);
+
+  Serial.println("Run turning motors for 1 second");
+  delay(1000);
 
   Serial.println("Apply power to drive motors");
-  ledcWrite(driveChannel, 120);
+  ledcWrite(driveChannel, 200);
 
-  Serial.println("Run all motors for 3 seconds");
-  delay(3);
+  Serial.println("Run all motors for 1.5 seconds");
+  delay(1500);
 
   Serial.println("Kill all motors");
-  ledcWrite(driveChannel, 0);
-  ledcWrite(turnChannel, 0);
+  ledcWrite(driveChannel, 3);
+  ledcWrite(turnChannel, 3);
 }
 
 void loop() {
@@ -91,5 +97,5 @@ void loop() {
   turnaround();
 
   Serial.println("Wait 10 seconds for next run");
-  delay(10);
+  delay(10000);
 }
