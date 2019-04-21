@@ -1,24 +1,36 @@
+#if CONFIG_FREERTOS_UNICORE
+#define ARDUINO_RUNNING_CORE 0
+#else
+#define ARDUINO_RUNNING_CORE 1
+#endif
+
+//////car const////////////////////////////////////////////////////////////////////////////////
+
+//#include <WiFiClient.h>
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
+
+//LED Setup
+const int red = 23;
+const int blue = 22;
+const int green = 21;
+bool turn = false;
 
 // setting PWM properties
 const int freq = 5000;
 const int resolution = 8;
-//const int turnChannel = 1;
-//const int ledChannel = 0;
-
 
 // Turning properties
 int turn_PWM = 14;  // adc2_channel 8
 int turn_enable  = 27;
-int turn_right1_left0 = 12;
+int turn_direction = 12;
 const int turnChannel = 8;
 
 // Driving properties
-int drive_forward_reverse = 26;
+int drive_direction = 26;
 int drive_PWM = 13;   // adc1_channel 5
 int drive_enable = 25;
-const int ledChannel = 5;
+const int driveChannel = 5;
 
 // Sonic sensor
 // defines pins numbers
@@ -27,31 +39,22 @@ const int echoPin = 2;
 
 // defines variables
 long duration;
-int distance;
+int distanceValue;
 int velocity = 0;
 
 void connectAWSIoT();
 void mqttCallback (char* topic, byte* payload, unsigned int length);
 
-//char *ssid = "Headquarters";
-//char *password = "@@Casa55";
 //char *ssid = "titan-share";
 //char *password = "titanrover";
 //char *ssid = "ASUS_ACM";
 //char *password = "fullerton306";
-char *ssid = "MasterMobile";
-char *password = "titanrover";
+//char *ssid = "MasterMobile";
+//char *password = "titanrover";
 
 const char *endpoint = "a2u5z8rto6rhmx-ats.iot.us-west-2.amazonaws.com";
 
 const int port = 8883;
-//char *pubTopic = "my/swarm";
-//char *subTopic = "my/smarm/update";
-//char *pubTopic = "$aws/things/rover_thing1/shadow/update";
-//char *subTopic = "$aws/things/rover_thing1/shadow/update/delta";
-char *pubTopic = "$aws/things/rover_thing2/shadow/update";
-char *subTopic = "$aws/things/rover_thing2/shadow/update/delta";
-
 
 const char* rootCA = "-----BEGIN CERTIFICATE-----\n"
 "MIIDQTCCAimgAwIBAgITBmyfz5m/jAo54vB4ikPmljZbyjANBgkqhkiG9w0BAQsF\n"
@@ -74,7 +77,70 @@ const char* rootCA = "-----BEGIN CERTIFICATE-----\n"
 "rqXRfboQnoZsG4q5WTP468SQvvG5\n"
 "-----END CERTIFICATE-----\n";
 
- //David Certs
+ // Tim Cert
+
+char car[5] = "car1";
+char *pubTopic = "$aws/things/rover_thing1/shadow/update";
+char *subTopic = "$aws/things/rover_thing1/shadow/update/delta";
+
+const char* certificate = "-----BEGIN CERTIFICATE-----\n"
+"MIIDWTCCAkGgAwIBAgIUZWrwVmYp0w4bhrAzsczBHuefu/8wDQYJKoZIhvcNAQEL\n"
+"BQAwTTFLMEkGA1UECwxCQW1hem9uIFdlYiBTZXJ2aWNlcyBPPUFtYXpvbi5jb20g\n"
+"SW5jLiBMPVNlYXR0bGUgU1Q9V2FzaGluZ3RvbiBDPVVTMB4XDTE5MDQxMDA5MzMw\n"
+"N1oXDTQ5MTIzMTIzNTk1OVowHjEcMBoGA1UEAwwTQVdTIElvVCBDZXJ0aWZpY2F0\n"
+"ZTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMpgb4ueMDbn2QR79MLl\n"
+"1b537qmXo+BJpOjHID92ZFoHlL5RWjAU/t7eKkRWCTtyHxciWi+kFYwW6nKoJhGE\n"
+"U5JQh4v4X7jFm6yLiqmETnsbbySZu7l6262KfBEb6SeEDM65plA7T4q2p2m4z5gu\n"
+"HTSE33iDyEq/aN7SukeVemZsK79YK7PZjnl2EfHOzy7wfUPSDFmOv4aNYzopOkYe\n"
+"Jj6Gh2h8rhJAM24rO2zCf7RQK4e51WwXZacADP6XhLpT7vS7A0SkjQMmurFrNCeX\n"
+"h8RQM/En4ZKA6ndvg6idVRxarOsqpDqfAcCzgy3rvwJpyETWI93rmdGPGdqhxe3f\n"
+"fakCAwEAAaNgMF4wHwYDVR0jBBgwFoAUD6uPeDiyIfzyJp/PzPU2aCFmSLkwHQYD\n"
+"VR0OBBYEFFRjDEKUE11QK8gvb4ettn+UT3xcMAwGA1UdEwEB/wQCMAAwDgYDVR0P\n"
+"AQH/BAQDAgeAMA0GCSqGSIb3DQEBCwUAA4IBAQAH9EOgcwtx/bTlNrdu+eXuC5AW\n"
+"AaI/h2aeH34Gev5xM8mEyBkqp4zKk6bWCOs5JHATvwOgV9iYtVV3b+z0oQKItbhQ\n"
+"ejhev5KNeUlawYU2QG3R21wTCUGy74/42lNoB/NqghaKrHCBxf+P7ZPppICJMfly\n"
+"hQyL6bpYg3MBAs/hx20X8puWsx7wZZ4/zR2qsuJEbbLMNqstbMv4Rx5bVXLV8emk\n"
+"utzwQUGXyuxtErQTOdZ4C8/tgtAPi+hGlEUzliNRg9h8jMGNPzHUdtDMBprsLdc0\n"
+"5c/wis2QK4/k/WfH25T306g8PYdh65raEnspycF2UV2lykI4qGC9oC9Adug6\n"
+"-----END CERTIFICATE-----\n";
+  
+const char* privateKey = "-----BEGIN RSA PRIVATE KEY-----\n"
+"MIIEpAIBAAKCAQEAymBvi54wNufZBHv0wuXVvnfuqZej4Emk6McgP3ZkWgeUvlFa\n"
+"MBT+3t4qRFYJO3IfFyJaL6QVjBbqcqgmEYRTklCHi/hfuMWbrIuKqYROextvJJm7\n"
+"uXrbrYp8ERvpJ4QMzrmmUDtPiranabjPmC4dNITfeIPISr9o3tK6R5V6Zmwrv1gr\n"
+"s9mOeXYR8c7PLvB9Q9IMWY6/ho1jOik6Rh4mPoaHaHyuEkAzbis7bMJ/tFArh7nV\n"
+"bBdlpwAM/peEulPu9LsDRKSNAya6sWs0J5eHxFAz8SfhkoDqd2+DqJ1VHFqs6yqk\n"
+"Op8BwLODLeu/AmnIRNYj3euZ0Y8Z2qHF7d99qQIDAQABAoIBAG/cqCtzT9E5jCJH\n"
+"Zf5IzkHOxxPk5sc1zbqBPpj1lviQki40h3ZmVI7aHGDTcZzzMq415cXJm8Noc0TX\n"
+"Htu12f/ZFWNP8ZEPYUIZi5axtDOl8WQ4uaQHfd/J2VQXqmOWQQIPaheVAR16YsU0\n"
+"S0Mh0jDSdTeHGDIA5TWtIxwoSpTLn0XPPlHOnZR5Nx3pRp1d3fhGjAHE/PEWF+yi\n"
+"adJz2NDPvfKQ9s2+jSbOC/Aojeow0OfXSw9klgqZq0c0PGZNCkzIUIdO5reAQazV\n"
+"0YA0eByjky+iR1EaNMFGK9N32nCZrpbghOwUPB7XlCm30pyCR+/9uaxmY8BMArAv\n"
+"UFl8k4ECgYEA98g3GmyopXg4KI2tT55FYhRnDEEvOgogYaS0/RzyMQ+c4+2I52a6\n"
+"sXv+0jf5ShRCRatWIRDQXgyrQBBT6JKQ0E2pFf90tsa9ul0f4SgpbY+0nGBaQiQj\n"
+"Ev4ZI0+IsY42V/9larZMqY4N5gny0+e0Zk3hIlfvmdUUDYd3mQ4ZgdkCgYEA0Ra1\n"
+"KyK7sCTDAZ2f7ePCEkXWdVOUe68EjoPDW2/COGKeFm3Sjw4jYHQG828kLLViXH7/\n"
+"mEvCzduIbOYgXOUz3loM1iDxzZVMYQEggNOkveHXistQcHYmkKjpn1oxQOsxBcnZ\n"
+"K0QEuEW61Clg7zNogyuZ4U3mkmiQbP4AQenvqFECgYEA0HY4rdmW9Ue0b6Hqmp58\n"
+"nyytGalJs1nLrnqk7oJI3K/W/gfc81oBXcsFMxV2fTWYIAcrOjxsIYQlG4vhHD0a\n"
+"6rU7uU8ngZKpEr7AUGy6lfueJyYFKbo/a/4tZgDG7yLHY7dyOppO2yOxW8Uo79Dz\n"
+"fFKvQ3aaFWEoMs2y+CjdmtkCgYEArGilCuShDyXBBtwKvAZKSPb9V9GLZlFy2HEd\n"
+"7Y/B/uySnrwAG6X01dvWv3Stx4/pg4vVBqeyAj07yVAY74CvvHFUlFymBndNe8+K\n"
+"FbBu74QCT5hGw/Uo56/gtF2Sr40/5x4BzQNRQQF+hON54sPpMgAJ6xZpQeCm9rib\n"
+"Tb6wt4ECgYAGi+UhasTDT8Qk7QciNTxWLgfQxZApwQrnDcN4ETmmPnQr9lSwCZuo\n"
+"JoAhtQiyZWAK6JurR6fp8qDt7ajORRpDFl1F0TyePrd8AkiT/y4LaVyphL0yuQMd\n"
+"DcgwqPcAZUmiCW3wmYnbVwyPYy86H6g0FZ1B9LF4oP7gCQOS7Op9rw==\n"
+"-----END RSA PRIVATE KEY-----\n";
+
+
+/* //David Certs
+
+char car[5] = "car2";
+char *pubTopic = "$aws/things/rover_thing2/shadow/update";
+char *subTopic = "$aws/things/rover_thing2/shadow/update/delta";
+
+//sprintf(pubMessage, "{\"car\":\"%s\",\"dist\":\"%d\"}", car, distanceValue);
+
 const char* certificate = "-----BEGIN CERTIFICATE-----\n"
 "MIIDWjCCAkKgAwIBAgIVAIrXriYmpELGGjosQICNg37vGH9AMA0GCSqGSIb3DQEB\n"
 "CwUAME0xSzBJBgNVBAsMQkFtYXpvbiBXZWIgU2VydmljZXMgTz1BbWF6b24uY29t\n"
@@ -123,13 +189,33 @@ const char* privateKey = "-----BEGIN RSA PRIVATE KEY-----\n"
 "M5oLLqrgAG36JOdA1fP/i45EM4LX+NGBx+tv7qndbrTnQUBxQPwa++zjpP9fgBik\n"
 "EhQbvw4yvlXLkhOdL0hmg/9hC5Jb4Urp0qUJN312Up6vjGHGWmf8GTP8\n"
 "-----END RSA PRIVATE KEY-----\n";
-
+*/
 
 WiFiClientSecure httpsClient;
 PubSubClient mqttClient(httpsClient);
 
-void setup() {
+///////////////////////////////////////////////////////////////////////////////////////////////
 
+// define two tasks for Blink & AnalogRead
+void TaskConnectToAWS( void *pvParameters );
+void TaskSensorUpdate( void *pvParameters );
+
+// the setup function runs once when you press reset or power the board
+void setup() {
+  
+  // initialize serial communication at 115200 bits per second:
+  Serial.begin(115200);
+  
+  //////car setup////////////////////////////////////////////////////////////////////////////////
+
+  //Led Setup
+    pinMode(red, OUTPUT);
+    pinMode(blue, OUTPUT);
+    pinMode(green, OUTPUT);
+    digitalWrite(red, HIGH);
+    digitalWrite(blue, LOW);
+    digitalWrite(green, LOW);
+    
     //Sonic Sensor
     pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
     pinMode(echoPin, INPUT); // Sets the echoPin as an Input
@@ -142,27 +228,27 @@ void setup() {
     pinMode(drive_enable, OUTPUT);
     
     digitalWrite(turn_enable, HIGH);
-    digitalWrite(drive_enable,  LOW);
+    digitalWrite(drive_enable,  HIGH);
     
-    pinMode(turn_right1_left0, OUTPUT);
-    pinMode(drive_forward_reverse, OUTPUT);
+    pinMode(turn_direction, OUTPUT);
+    pinMode(drive_direction, OUTPUT);
     
-    digitalWrite(turn_right1_left0, LOW);
-    digitalWrite(drive_forward_reverse, LOW);
+    digitalWrite(turn_direction, LOW);
+    digitalWrite(drive_direction, LOW);
     
     pinMode(turn_PWM, OUTPUT);
     pinMode(drive_PWM, OUTPUT);
+
+    // Enable all motors
+    digitalWrite(turn_enable, HIGH);
+    digitalWrite(drive_enable, HIGH);
   
-    ledcSetup(ledChannel, freq, resolution);
+    ledcSetup(driveChannel, freq, resolution);
     ledcSetup(turnChannel, freq, resolution);
     
     // attach the channel to the GPIO to be controlled
     ledcAttachPin(turn_PWM, turnChannel);
-    ledcAttachPin(drive_PWM, ledChannel);  
-
-
-
-
+    ledcAttachPin(drive_PWM, driveChannel);  
 
     // Start WiFi
     Serial.println("Connecting to ");
@@ -171,6 +257,9 @@ void setup() {
     WiFi.begin(ssid, password);
 
     while (WiFi.status() != WL_CONNECTED) {
+        digitalWrite(red, LOW);
+        digitalWrite(blue, HIGH);
+        digitalWrite(green, LOW);
         delay(500);
         Serial.print(".");
     }
@@ -184,6 +273,30 @@ void setup() {
     mqttClient.setCallback(mqttCallback);
 
     connectAWSIoT();
+  ///////////////////////////////////////////////////////////////////////////////////////////////
+  
+  // Now set up two tasks to run independently.
+  xTaskCreatePinnedToCore(
+    TaskConnectToAWS
+    ,  "TaskConnectToAWS"   // A name just for humans
+    ,  4096  // This stack size can be checked & adjusted by reading the Stack Highwater
+    ,  NULL
+    ,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
+    ,  NULL 
+    ,  ARDUINO_RUNNING_CORE);
+
+  xTaskCreatePinnedToCore(
+    TaskSensorUpdate
+    ,  "AnalogReadA3"
+    ,  1024  // Stack size
+    ,  NULL
+    ,  1  // Priority
+    ,  NULL 
+    ,  ARDUINO_RUNNING_CORE);
+
+  // Now the task scheduler, which takes over control of scheduling individual tasks, is automatically started.
+
+ 
 }
 
 void connectAWSIoT() {
@@ -218,63 +331,53 @@ void mqttCallback (char* topic, byte* payload, unsigned int length) {
             Serial.print(" ");
         }
     }
-    if (total == 558){
-      digitalWrite(drive_enable,  HIGH);
-      velocity = 120;
-      ledcWrite(ledChannel, velocity);
-      Serial.println("Lets drive");
+    if(turn){
+      total == 0;
     }
-    else if (total == 529){
-      digitalWrite(drive_enable,  LOW);
-      if (velocity < 120){
-        velocity = velocity + 10;
-      }
-      ledcWrite(turnChannel, velocity);
-      digitalWrite(turn_enable, LOW);
-      Serial.println("Speed");
-    }
-    else if (total == 485){
-      digitalWrite(drive_enable,  LOW);
-      if(velocity > 10){
-        velocity = velocity - 10;
-      }
-      ledcWrite(turnChannel, velocity);
-      digitalWrite(turn_enable, LOW);
-      Serial.println("Slowing");
-    }
-    else if (total == 486){
-      digitalWrite(drive_enable,  LOW);
-      velocity = 3;
-      ledcWrite(turnChannel, velocity);
-      digitalWrite(turn_enable, LOW);
-      Serial.println("Stopping");
-    }
-    else if (total == 459){
-      digitalWrite(turn_right1_left0, LOW);
-      digitalWrite(turn_enable, HIGH);
-      ledcWrite(turnChannel, 120);
-      Serial.println("Turning Left");
-    }
-    else if (total == 542){
-      digitalWrite(turn_right1_left0, HIGH);
-      digitalWrite(turn_enable, HIGH);
-      ledcWrite(turnChannel, 120);
-      Serial.println("Turning Right");
+    switch(total){
+      case 558:
+        Serial.println("Lets drive");digitalWrite(drive_enable,  HIGH);digitalWrite(turn_enable, LOW);
+        velocity = 240;
+        ledcWrite(driveChannel, velocity);
+        break;
+      case 529:
+        Serial.println("Speed");digitalWrite(drive_enable,  HIGH);digitalWrite(turn_enable, LOW);
+        if (velocity < 240){ velocity = velocity + 10; }
+        ledcWrite(driveChannel, velocity);
+        break;
+      case 485:
+        Serial.println("Slowing");digitalWrite(drive_enable,  HIGH);digitalWrite(turn_enable, LOW);
+        if(velocity > 40){ velocity = velocity - 40; }
+        ledcWrite(driveChannel, velocity);
+        break;
+      case 486:
+        Serial.println("Stopping"); digitalWrite(drive_enable,  LOW); digitalWrite(turn_enable, LOW);
+        velocity = 0;
+        ledcWrite(turnChannel, velocity);
+        //turn = true; turnaround();
+        break;
+      case 459:
+        Serial.println("Turning Left"); digitalWrite(turn_direction, LOW); digitalWrite(turn_enable, HIGH);
+        ledcWrite(turnChannel, 240);
+        break;
+      case 542: 
+        Serial.println("Turning Right"); digitalWrite(turn_direction, HIGH); digitalWrite(turn_enable, HIGH);
+        ledcWrite(turnChannel, 240);
+        break;
     }
 }
 
-void mqttLoop(int dist) {
+void mqttLoop() {
     if (!mqttClient.connected()) {
         connectAWSIoT();
     }
     mqttClient.loop();
     long now = millis();
-    char car[5] = "car2";
     if (now - messageSentAt > 507) {
         messageSentAt = now;
         //dummyValue = dummyValue + 100;
         //sprintf(pubMessage, "{\"car1\":\"%d\"}", dist); // dummyValue++); // {\"desired\":{\"message\":\"%d\"}}}", dummyValue++);
-        sprintf(pubMessage, "{\"car\":\"%s\",\"dist\":\"%d\"}", car, dist);
+        sprintf(pubMessage, "{\"car\":\"%s\",\"dist\":\"%d\"}", car, distanceValue);
         Serial.print("Publishing message to topic ");
         Serial.println(pubTopic);
         Serial.println(pubMessage);
@@ -284,6 +387,7 @@ void mqttLoop(int dist) {
 }
 
 int distanceSensor(){
+  int distance = 0;
   // Clears the trigPin
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
@@ -300,12 +404,98 @@ int distanceSensor(){
   //Serial.print("Distance: ");
   //Serial.println(distance);
   
-  return 90; //distance;
+  return distance;
 }
 
-void loop() {
-  ledcWrite(ledChannel, 120);
-  mqttLoop(distanceSensor()); 
+void turnaround() {
   
-  delay(10);
+  digitalWrite(turn_enable, HIGH);
+  digitalWrite(drive_enable, HIGH);
+  delay(3000);
+  Serial.println("Start in a stopped state");
+  ledcWrite(driveChannel, 3);
+  ledcWrite(turnChannel, 3);
+
+  Serial.println("Prepare wheels for right turn");
+  digitalWrite(turn_direction, LOW);    // Right:     L   Left:     H
+
+  Serial.println("Prepare wheels for reverse");
+  digitalWrite(drive_direction, HIGH);   // Forward:   L   Reverse:  H
+
+  Serial.println("Apply power to turning motors");
+  ledcWrite(turnChannel, 200);
+
+  Serial.println("Run turning motors for 1 second");
+  delay(1000);
+
+  Serial.println("Apply power to drive motors");
+  ledcWrite(driveChannel, 200);
+
+  Serial.println("Run all motors for 1.5 seconds");
+  delay(1500);
+
+  Serial.println("Kill all motors");
+  ledcWrite(driveChannel, 3);
+  ledcWrite(turnChannel, 3);
+
+  Serial.println("Prepare wheels for left turn");
+  digitalWrite(turn_direction, HIGH);    // Right:     L   Left:     H
+
+  Serial.println("Prepare wheels for forward");
+  digitalWrite(drive_direction, LOW);   // Forward:   L   Reverse:  H
+
+  Serial.println("Apply power to turning motors");
+  ledcWrite(turnChannel, 200);
+
+  Serial.println("Run turning motors for 1 second");
+  delay(1000);
+
+  Serial.println("Apply power to drive motors");
+  ledcWrite(driveChannel, 200);
+
+  Serial.println("Run all motors for 1.5 seconds");
+  delay(1500);
+
+  Serial.println("Kill all motors");
+  ledcWrite(driveChannel, 3);
+  ledcWrite(turnChannel, 3);
+  turn = false;
+}
+
+
+void loop()
+{
+  // Empty. Things are done in Tasks.
+}
+
+/*--------------------------------------------------*/
+/*---------------------- Tasks ---------------------*/
+/*--------------------------------------------------*/
+
+void TaskConnectToAWS(void *pvParameters)  // This is a task.
+{
+  (void) pvParameters;
+
+  digitalWrite(red, LOW);
+  digitalWrite(blue, LOW);
+
+  for (;;) // A Task shall never return or exit.
+  {
+
+    digitalWrite(green, LOW);
+    mqttLoop(); 
+    digitalWrite(green, HIGH);
+    vTaskDelay(100);  // one tick delay (15ms) in between reads for stability
+  }
+}
+
+void TaskSensorUpdate(void *pvParameters)  // This is a task.
+{
+  (void) pvParameters;
+  
+  for (;;)
+  {
+    distanceValue = distanceSensor();
+    vTaskDelay(10);  // one tick delay (15ms) in between reads for stability
+  }
 }
