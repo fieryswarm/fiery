@@ -223,12 +223,14 @@ void setup() {
   //////car setup////////////////////////////////////////////////////////////////////////////////
 
   //Led Setup
+    #if tim
     pinMode(red, OUTPUT);
     pinMode(blue, OUTPUT);
     pinMode(green, OUTPUT);
     digitalWrite(red, HIGH);
     digitalWrite(blue, LOW);
     digitalWrite(green, LOW);
+    #endif 
     
     //Sonic Sensor
     pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
@@ -271,9 +273,11 @@ void setup() {
     WiFi.begin(ssid, password);
 
     while (WiFi.status() != WL_CONNECTED) {
+        #if tim
         digitalWrite(red, LOW);
         digitalWrite(blue, HIGH);
         digitalWrite(green, LOW);
+        #endif
         delay(500);
         Serial.print(".");
     }
@@ -504,12 +508,19 @@ void TaskConnectToAWS(void *pvParameters)  // This is a task.
 
   for (;;) // A Task shall never return or exit.
   {
+    #if tim
     digitalWrite(red, LOW);
     digitalWrite(blue, LOW);
     digitalWrite(green, LOW);
     //ledcWrite(driveChannel, 50);
+    #endif
+    
     mqttLoop(); 
+    
+    #if tim
     digitalWrite(green, HIGH);
+    #endif
+    
     //delay(10);    
     //digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
     //vTaskDelay(100);  // one tick delay (15ms) in between reads for stability
