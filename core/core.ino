@@ -6,6 +6,15 @@
 
 //////car const////////////////////////////////////////////////////////////////////////////////
 
+#if 1
+#define tim 1
+#define david 0
+#else
+#define david 1
+#define tim 0
+#endif
+
+
 //#include <WiFiClient.h>
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
@@ -45,16 +54,19 @@ int velocity = 0;
 void connectAWSIoT();
 void mqttCallback (char* topic, byte* payload, unsigned int length);
 
+//char *ssid = "Headquarters";
+//char *password = "@@Casa55";
 //char *ssid = "titan-share";
 //char *password = "titanrover";
 //char *ssid = "ASUS_ACM";
 //char *password = "fullerton306";
-//char *ssid = "MasterMobile";
-//char *password = "titanrover";
+char *ssid = "MasterMobile";
+char *password = "titanrover";
 
 const char *endpoint = "a2u5z8rto6rhmx-ats.iot.us-west-2.amazonaws.com";
 
 const int port = 8883;
+
 
 const char* rootCA = "-----BEGIN CERTIFICATE-----\n"
 "MIIDQTCCAimgAwIBAgITBmyfz5m/jAo54vB4ikPmljZbyjANBgkqhkiG9w0BAQsF\n"
@@ -78,7 +90,7 @@ const char* rootCA = "-----BEGIN CERTIFICATE-----\n"
 "-----END CERTIFICATE-----\n";
 
  // Tim Cert
-
+#if tim
 char car[5] = "car1";
 char *pubTopic = "$aws/things/rover_thing1/shadow/update";
 char *subTopic = "$aws/things/rover_thing1/shadow/update/delta";
@@ -131,9 +143,11 @@ const char* privateKey = "-----BEGIN RSA PRIVATE KEY-----\n"
 "JoAhtQiyZWAK6JurR6fp8qDt7ajORRpDFl1F0TyePrd8AkiT/y4LaVyphL0yuQMd\n"
 "DcgwqPcAZUmiCW3wmYnbVwyPYy86H6g0FZ1B9LF4oP7gCQOS7Op9rw==\n"
 "-----END RSA PRIVATE KEY-----\n";
+#endif
 
 
-/* //David Certs
+#if david
+//David Certs
 
 char car[5] = "car2";
 char *pubTopic = "$aws/things/rover_thing2/shadow/update";
@@ -189,7 +203,7 @@ const char* privateKey = "-----BEGIN RSA PRIVATE KEY-----\n"
 "M5oLLqrgAG36JOdA1fP/i45EM4LX+NGBx+tv7qndbrTnQUBxQPwa++zjpP9fgBik\n"
 "EhQbvw4yvlXLkhOdL0hmg/9hC5Jb4Urp0qUJN312Up6vjGHGWmf8GTP8\n"
 "-----END RSA PRIVATE KEY-----\n";
-*/
+#endif
 
 WiFiClientSecure httpsClient;
 PubSubClient mqttClient(httpsClient);
@@ -354,7 +368,9 @@ void mqttCallback (char* topic, byte* payload, unsigned int length) {
         Serial.println("Stopping"); digitalWrite(drive_enable,  LOW); digitalWrite(turn_enable, LOW);
         velocity = 0;
         ledcWrite(turnChannel, velocity);
-        //turn = true; turnaround();
+        turn = true; turnaround();
+        distanceValue = 35;
+        mqttLoop(); 
         break;
       case 459:
         Serial.println("Turning Left"); digitalWrite(turn_direction, LOW); digitalWrite(turn_enable, HIGH);
@@ -373,7 +389,7 @@ void mqttLoop() {
     }
     mqttClient.loop();
     long now = millis();
-    if (now - messageSentAt > 507) {
+    if (now - messageSentAt > 507 && !turn) {
         messageSentAt = now;
         //dummyValue = dummyValue + 100;
         //sprintf(pubMessage, "{\"car1\":\"%d\"}", dist); // dummyValue++); // {\"desired\":{\"message\":\"%d\"}}}", dummyValue++);
@@ -408,7 +424,6 @@ int distanceSensor(){
 }
 
 void turnaround() {
-  
   digitalWrite(turn_enable, HIGH);
   digitalWrite(drive_enable, HIGH);
   delay(3000);
@@ -423,13 +438,13 @@ void turnaround() {
   digitalWrite(drive_direction, HIGH);   // Forward:   L   Reverse:  H
 
   Serial.println("Apply power to turning motors");
-  ledcWrite(turnChannel, 200);
+  ledcWrite(turnChannel, 80);
 
   Serial.println("Run turning motors for 1 second");
   delay(1000);
 
   Serial.println("Apply power to drive motors");
-  ledcWrite(driveChannel, 200);
+  ledcWrite(driveChannel, 80);
 
   Serial.println("Run all motors for 1.5 seconds");
   delay(1500);
@@ -445,13 +460,13 @@ void turnaround() {
   digitalWrite(drive_direction, LOW);   // Forward:   L   Reverse:  H
 
   Serial.println("Apply power to turning motors");
-  ledcWrite(turnChannel, 200);
+  ledcWrite(turnChannel, 80);
 
   Serial.println("Run turning motors for 1 second");
   delay(1000);
 
   Serial.println("Apply power to drive motors");
-  ledcWrite(driveChannel, 200);
+  ledcWrite(driveChannel, 80);
 
   Serial.println("Run all motors for 1.5 seconds");
   delay(1500);
@@ -476,15 +491,29 @@ void TaskConnectToAWS(void *pvParameters)  // This is a task.
 {
   (void) pvParameters;
 
-  digitalWrite(red, LOW);
-  digitalWrite(blue, LOW);
+/*
+  Blink
+  Turns on an LED on for one second, then off for one second, repeatedly.
+    
+  If you want to know what pin the on-board LED is connected to on your ESP32 model, check
+  the Technical Specs of your board.
+*/
+
+  // initialize digital LED_BUILTIN on pin 13 as an output.
+  //pinMode(LED_BUILTIN, OUTPUT);
 
   for (;;) // A Task shall never return or exit.
   {
-
+    digitalWrite(red, LOW);
+    digitalWrite(blue, LOW);
     digitalWrite(green, LOW);
+    //ledcWrite(driveChannel, 50);
     mqttLoop(); 
     digitalWrite(green, HIGH);
+    //delay(10);    
+    //digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    //vTaskDelay(100);  // one tick delay (15ms) in between reads for stability
+    //digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
     vTaskDelay(100);  // one tick delay (15ms) in between reads for stability
   }
 }
@@ -493,9 +522,25 @@ void TaskSensorUpdate(void *pvParameters)  // This is a task.
 {
   (void) pvParameters;
   
+/*
+  AnalogReadSerial
+  Reads an analog input on pin A3, prints the result to the serial monitor.
+  Graphical representation is available using serial plotter (Tools > Serial Plotter menu)
+  Attach the center pin of a potentiometer to pin A3, and the outside pins to +5V and ground.
+
+  This example code is in the public domain.
+*/
+
   for (;;)
   {
     distanceValue = distanceSensor();
+
+
+    
+    // read the input on analog pin A3:
+    //int distanceValue = analogRead(A3);
+    // print out the value you read:
+    //Serial.println(distanceValue);
     vTaskDelay(10);  // one tick delay (15ms) in between reads for stability
   }
 }
