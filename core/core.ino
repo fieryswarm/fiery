@@ -4,8 +4,20 @@
 #define ARDUINO_RUNNING_CORE 1
 #endif
 
-//////car const////////////////////////////////////////////////////////////////////////////////
 
+
+/*/////////////////////////////////////////////////////////////////////////////
+Required libraries for all vehicles.
+/////////////////////////////////////////////////////////////////////////////*/
+#include <WiFiClientSecure.h>
+#include <PubSubClient.h>
+
+
+
+/*/////////////////////////////////////////////////////////////////////////////
+Switch for different vehicle configurations.
+Set this value before flashing.
+/////////////////////////////////////////////////////////////////////////////*/
 #if 1
 #define tim 1
 #define david 0
@@ -15,45 +27,11 @@
 #endif
 
 
-//#include <WiFiClient.h>
-#include <WiFiClientSecure.h>
-#include <PubSubClient.h>
 
-//LED Setup
-const int red = 23;
-const int blue = 22;
-const int green = 21;
-bool turn = false;
-
-// setting PWM properties
-const int freq = 5000;
-const int resolution = 8;
-
-// Turning properties
-int turn_PWM = 14;  // adc2_channel 8
-int turn_enable  = 27;
-int turn_direction = 12;
-const int turnChannel = 8;
-
-// Driving properties
-int drive_direction = 26;
-int drive_PWM = 13;   // adc1_channel 5
-int drive_enable = 25;
-const int driveChannel = 5;
-
-// Sonic sensor
-// defines pins numbers
-const int trigPin = 15;
-const int echoPin = 2;
-
-// defines variables
-long duration;
-int distanceValue;
-int velocity = 0;
-
-void connectAWSIoT();
-void mqttCallback (char* topic, byte* payload, unsigned int length);
-
+/*/////////////////////////////////////////////////////////////////////////////
+Network properties
+Set these values before flashing.
+/////////////////////////////////////////////////////////////////////////////*/
 //char *ssid = "Headquarters";
 //char *password = "@@Casa55";
 //char *ssid = "titan-share";
@@ -63,11 +41,79 @@ void mqttCallback (char* topic, byte* payload, unsigned int length);
 char *ssid = "MasterMobile";
 char *password = "titanrover";
 
-const char *endpoint = "a2u5z8rto6rhmx-ats.iot.us-west-2.amazonaws.com";
 
+
+/*/////////////////////////////////////////////////////////////////////////////
+LED properties
+Currently Tim's vehicle only
+/////////////////////////////////////////////////////////////////////////////*/
+const int red = 23;
+const int blue = 22;
+const int green = 21;
+
+
+
+/*/////////////////////////////////////////////////////////////////////////////
+PWM properties
+/////////////////////////////////////////////////////////////////////////////*/
+const int freq = 5000;
+const int resolution = 8;
+
+
+
+/*/////////////////////////////////////////////////////////////////////////////
+Turning motor properties
+/////////////////////////////////////////////////////////////////////////////*/
+int turn_PWM = 14;  // adc2_channel 8
+int turn_enable  = 27;
+int turn_direction = 12;
+const int turnChannel = 8;
+
+
+
+/*/////////////////////////////////////////////////////////////////////////////
+Driving motor properties
+/////////////////////////////////////////////////////////////////////////////*/
+int drive_direction = 26;
+int drive_PWM = 13;   // adc1_channel 5
+int drive_enable = 25;
+const int driveChannel = 5;
+
+
+
+/*/////////////////////////////////////////////////////////////////////////////
+Front mounted ultrasonic sensor properties
+/////////////////////////////////////////////////////////////////////////////*/
+const int trigPin = 15;
+const int echoPin = 2;
+
+
+
+/*/////////////////////////////////////////////////////////////////////////////
+Other properties
+/////////////////////////////////////////////////////////////////////////////*/
+long duration;
+int distanceValue;
+int velocity = 0;
+bool turn = false;
+const char *endpoint = "a2u5z8rto6rhmx-ats.iot.us-west-2.amazonaws.com";
 const int port = 8883;
 
 
+
+/*/////////////////////////////////////////////////////////////////////////////
+Method prototypes
+/////////////////////////////////////////////////////////////////////////////*/
+void connectAWSIoT();
+void mqttCallback (char* topic, byte* payload, unsigned int length);
+void TaskConnectToAWS( void *pvParameters );
+void TaskSensorUpdate( void *pvParameters );
+
+
+
+/*/////////////////////////////////////////////////////////////////////////////
+Amazon's shared certificate.
+/////////////////////////////////////////////////////////////////////////////*/
 const char* rootCA = "-----BEGIN CERTIFICATE-----\n"
 "MIIDQTCCAimgAwIBAgITBmyfz5m/jAo54vB4ikPmljZbyjANBgkqhkiG9w0BAQsF\n"
 "ADA5MQswCQYDVQQGEwJVUzEPMA0GA1UEChMGQW1hem9uMRkwFwYDVQQDExBBbWF6\n"
@@ -89,12 +135,15 @@ const char* rootCA = "-----BEGIN CERTIFICATE-----\n"
 "rqXRfboQnoZsG4q5WTP468SQvvG5\n"
 "-----END CERTIFICATE-----\n";
 
- // Tim Cert
+
+
+/*/////////////////////////////////////////////////////////////////////////////
+Tim's vehicle's properties
+/////////////////////////////////////////////////////////////////////////////*/
 #if tim
 char car[5] = "car1";
 char *pubTopic = "$aws/things/rover_thing1/shadow/update";
 char *subTopic = "$aws/things/rover_thing1/shadow/update/delta";
-
 const char* certificate = "-----BEGIN CERTIFICATE-----\n"
 "MIIDWTCCAkGgAwIBAgIUZWrwVmYp0w4bhrAzsczBHuefu/8wDQYJKoZIhvcNAQEL\n"
 "BQAwTTFLMEkGA1UECwxCQW1hem9uIFdlYiBTZXJ2aWNlcyBPPUFtYXpvbi5jb20g\n"
@@ -115,7 +164,6 @@ const char* certificate = "-----BEGIN CERTIFICATE-----\n"
 "utzwQUGXyuxtErQTOdZ4C8/tgtAPi+hGlEUzliNRg9h8jMGNPzHUdtDMBprsLdc0\n"
 "5c/wis2QK4/k/WfH25T306g8PYdh65raEnspycF2UV2lykI4qGC9oC9Adug6\n"
 "-----END CERTIFICATE-----\n";
-  
 const char* privateKey = "-----BEGIN RSA PRIVATE KEY-----\n"
 "MIIEpAIBAAKCAQEAymBvi54wNufZBHv0wuXVvnfuqZej4Emk6McgP3ZkWgeUvlFa\n"
 "MBT+3t4qRFYJO3IfFyJaL6QVjBbqcqgmEYRTklCHi/hfuMWbrIuKqYROextvJJm7\n"
@@ -146,15 +194,15 @@ const char* privateKey = "-----BEGIN RSA PRIVATE KEY-----\n"
 #endif
 
 
-#if david
-//David Certs
 
+/*/////////////////////////////////////////////////////////////////////////////
+David's vehicle's properties
+//sprintf(pubMessage, "{\"car\":\"%s\",\"dist\":\"%d\"}", car, distanceValue);
+/////////////////////////////////////////////////////////////////////////////*/
+#if david
 char car[5] = "car2";
 char *pubTopic = "$aws/things/rover_thing2/shadow/update";
 char *subTopic = "$aws/things/rover_thing2/shadow/update/delta";
-
-//sprintf(pubMessage, "{\"car\":\"%s\",\"dist\":\"%d\"}", car, distanceValue);
-
 const char* certificate = "-----BEGIN CERTIFICATE-----\n"
 "MIIDWjCCAkKgAwIBAgIVAIrXriYmpELGGjosQICNg37vGH9AMA0GCSqGSIb3DQEB\n"
 "CwUAME0xSzBJBgNVBAsMQkFtYXpvbiBXZWIgU2VydmljZXMgTz1BbWF6b24uY29t\n"
@@ -175,7 +223,6 @@ const char* certificate = "-----BEGIN CERTIFICATE-----\n"
 "dDPGpTWvsJlXrGrEgRUqsHQaSD98kYSywdm1H0ulxYeDcjxaApFfmDqNInf5M85j\n"
 "r/A6wgnApu0NGRgdibsSIR/dwr/voohCyTselWy6MGhs3Usx/EKoQdLFnxKsJQ==\n"
 "-----END CERTIFICATE-----\n";
-
 const char* privateKey = "-----BEGIN RSA PRIVATE KEY-----\n"
 "MIIEpgIBAAKCAQEA2VDR1W5SOZvk4MDmEDtTcqOcH+qMTrgnSmKcvl6YQzL+12n6\n"
 "RVoOMFzyZ12maE0BPviWC5mWzMfEjPSAgd51wM1yRVNtgbrn7yh0ZBqCHJjaBSgz\n"
@@ -205,118 +252,134 @@ const char* privateKey = "-----BEGIN RSA PRIVATE KEY-----\n"
 "-----END RSA PRIVATE KEY-----\n";
 #endif
 
+
+
+/*/////////////////////////////////////////////////////////////////////////////
+Object creation
+/////////////////////////////////////////////////////////////////////////////*/
 WiFiClientSecure httpsClient;
 PubSubClient mqttClient(httpsClient);
 
-///////////////////////////////////////////////////////////////////////////////////////////////
 
-// define two tasks for Blink & AnalogRead
-void TaskConnectToAWS( void *pvParameters );
-void TaskSensorUpdate( void *pvParameters );
 
-// the setup function runs once when you press reset or power the board
+/*/////////////////////////////////////////////////////////////////////////////
+Runs automatically upon bootup
+/////////////////////////////////////////////////////////////////////////////*/
 void setup() {
-  
-  // initialize serial communication at 115200 bits per second:
+
+
+
+  // Initialize serial communication at 115200 bits per second
   Serial.begin(115200);
-  
-  //////car setup////////////////////////////////////////////////////////////////////////////////
 
-  //Led Setup
-    #if tim
-    pinMode(red, OUTPUT);
-    pinMode(blue, OUTPUT);
-    pinMode(green, OUTPUT);
-    digitalWrite(red, HIGH);
-    digitalWrite(blue, LOW);
-    digitalWrite(green, LOW);
-    #endif 
-    
-    //Sonic Sensor
-    pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
-    pinMode(echoPin, INPUT); // Sets the echoPin as an Input
 
-  
-    delay(1000);
-    Serial.begin(115200);
 
-    pinMode(turn_enable, OUTPUT);
-    pinMode(drive_enable, OUTPUT);
-    
-    digitalWrite(turn_enable, HIGH);
-    digitalWrite(drive_enable,  HIGH);
-    
-    pinMode(turn_direction, OUTPUT);
-    pinMode(drive_direction, OUTPUT);
-    
-    digitalWrite(turn_direction, LOW);
-    digitalWrite(drive_direction, LOW);
-    
-    pinMode(turn_PWM, OUTPUT);
-    pinMode(drive_PWM, OUTPUT);
+  // LED setup
+  #if tim
+  pinMode(red, OUTPUT);
+  pinMode(blue, OUTPUT);
+  pinMode(green, OUTPUT);
+  digitalWrite(red, HIGH);
+  digitalWrite(blue, LOW);
+  digitalWrite(green, LOW);
+  #endif
 
-    // Enable all motors
-    digitalWrite(turn_enable, HIGH);
-    digitalWrite(drive_enable, HIGH);
-  
-    ledcSetup(driveChannel, freq, resolution);
-    ledcSetup(turnChannel, freq, resolution);
-    
-    // attach the channel to the GPIO to be controlled
-    ledcAttachPin(turn_PWM, turnChannel);
-    ledcAttachPin(drive_PWM, driveChannel);  
 
-    // Start WiFi
-    Serial.println("Connecting to ");
-    Serial.print(ssid);
-    //WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid, password);
 
-    while (WiFi.status() != WL_CONNECTED) {
-        #if tim
-        digitalWrite(red, LOW);
-        digitalWrite(blue, HIGH);
-        digitalWrite(green, LOW);
-        #endif
-        delay(500);
-        Serial.print(".");
-    }
-    Serial.println("\nConnected.");
+  // Front mounted ultransonic setup
+  pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
+  pinMode(echoPin, INPUT); // Sets the echoPin as an Input
 
-    // Configure MQTT Client
-    httpsClient.setCACert(rootCA);
-    httpsClient.setCertificate(certificate);
-    httpsClient.setPrivateKey(privateKey);
-    mqttClient.setServer(endpoint, port);
-    mqttClient.setCallback(mqttCallback);
 
-    connectAWSIoT();
-  ///////////////////////////////////////////////////////////////////////////////////////////////
-  
-  // Now set up two tasks to run independently.
+
+  delay(1000);
+  Serial.begin(115200);
+
+  pinMode(turn_enable, OUTPUT);
+  pinMode(drive_enable, OUTPUT);
+
+  digitalWrite(turn_enable, HIGH);
+  digitalWrite(drive_enable,  HIGH);
+
+  pinMode(turn_direction, OUTPUT);
+  pinMode(drive_direction, OUTPUT);
+
+  digitalWrite(turn_direction, LOW);
+  digitalWrite(drive_direction, LOW);
+
+  pinMode(turn_PWM, OUTPUT);
+  pinMode(drive_PWM, OUTPUT);
+
+  // Enable all motors
+  digitalWrite(turn_enable, HIGH);
+  digitalWrite(drive_enable, HIGH);
+
+  ledcSetup(driveChannel, freq, resolution);
+  ledcSetup(turnChannel, freq, resolution);
+
+  // attach the channel to the GPIO to be controlled
+  ledcAttachPin(turn_PWM, turnChannel);
+  ledcAttachPin(drive_PWM, driveChannel);
+
+  // Start WiFi
+  Serial.println("Connecting to ");
+  Serial.print(ssid);
+  //WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+      #if tim
+      digitalWrite(red, LOW);
+      digitalWrite(blue, HIGH);
+      digitalWrite(green, LOW);
+      #endif
+      delay(500);
+      Serial.print(".");
+  }
+  Serial.println("\nConnected.");
+
+  // Configure MQTT Client
+  httpsClient.setCACert(rootCA);
+  httpsClient.setCertificate(certificate);
+  httpsClient.setPrivateKey(privateKey);
+  mqttClient.setServer(endpoint, port);
+  mqttClient.setCallback(mqttCallback);
+
+
+
+  connectAWSIoT();
+
+
+
+  /*/////////////////////////////////////////////////////////////////////////////
+  FreeRTOS task creation
+  The task scheduler will automatically initiate
+  /////////////////////////////////////////////////////////////////////////////*/
   xTaskCreatePinnedToCore(
     TaskConnectToAWS
     ,  "TaskConnectToAWS"   // A name just for humans
     ,  4096  // This stack size can be checked & adjusted by reading the Stack Highwater
     ,  NULL
     ,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
-    ,  NULL 
+    ,  NULL
     ,  ARDUINO_RUNNING_CORE);
-
   xTaskCreatePinnedToCore(
     TaskSensorUpdate
     ,  "AnalogReadA3"
     ,  1024  // Stack size
     ,  NULL
     ,  1  // Priority
-    ,  NULL 
+    ,  NULL
     ,  ARDUINO_RUNNING_CORE);
 
-  // Now the task scheduler, which takes over control of scheduling individual tasks, is automatically started.
 
- 
 }
 
+
+
+/*/////////////////////////////////////////////////////////////////////////////
+Add documentation here
+/////////////////////////////////////////////////////////////////////////////*/
 void connectAWSIoT() {
     while (!mqttClient.connected()) {
         if (mqttClient.connect("ESP32_device")) {
@@ -333,15 +396,26 @@ void connectAWSIoT() {
     }
 }
 
+
+
+/*/////////////////////////////////////////////////////////////////////////////
+Add documentation here
+Can these be moved to the top of the doc where other variables are created?
+/////////////////////////////////////////////////////////////////////////////*/
 long messageSentAt = 0;
 int dummyValue = 0;
 char pubMessage[128];
 
+
+
+/*/////////////////////////////////////////////////////////////////////////////
+Add documentation here.
+/////////////////////////////////////////////////////////////////////////////*/
 void mqttCallback (char* topic, byte* payload, unsigned int length) {
     int total = 0;
     Serial.print("Received. topic=");
     Serial.println(topic);
-    
+
     for (int i = 0; i < 5; i++) {
         if( i < 5){
             total += (int)payload[i];
@@ -374,19 +448,24 @@ void mqttCallback (char* topic, byte* payload, unsigned int length) {
         ledcWrite(turnChannel, velocity);
         turn = true; turnaround();
         distanceValue = 35;
-        mqttLoop(); 
+        mqttLoop();
         break;
       case 459:
         Serial.println("Turning Left"); digitalWrite(turn_direction, LOW); digitalWrite(turn_enable, HIGH);
         ledcWrite(turnChannel, 240);
         break;
-      case 542: 
+      case 542:
         Serial.println("Turning Right"); digitalWrite(turn_direction, HIGH); digitalWrite(turn_enable, HIGH);
         ledcWrite(turnChannel, 240);
         break;
     }
 }
 
+
+
+/*/////////////////////////////////////////////////////////////////////////////
+Add documentation here.
+/////////////////////////////////////////////////////////////////////////////*/
 void mqttLoop() {
     if (!mqttClient.connected()) {
         connectAWSIoT();
@@ -406,6 +485,11 @@ void mqttLoop() {
     }
 }
 
+
+
+/*/////////////////////////////////////////////////////////////////////////////
+Add documentation here.
+/////////////////////////////////////////////////////////////////////////////*/
 int distanceSensor(){
   int distance = 0;
   // Clears the trigPin
@@ -419,14 +503,19 @@ int distanceSensor(){
   duration = pulseIn(echoPin, HIGH);
   // Calculating the distance
   distance= duration*0.034/2;
-  
+
   // Prints the distance on the Serial Monitor
   //Serial.print("Distance: ");
   //Serial.println(distance);
-  
+
   return distance;
 }
 
+
+
+/*/////////////////////////////////////////////////////////////////////////////
+Motor procedures for executing a 180 degree turn.
+/////////////////////////////////////////////////////////////////////////////*/
 void turnaround() {
   digitalWrite(turn_enable, HIGH);
   digitalWrite(drive_enable, HIGH);
@@ -482,26 +571,30 @@ void turnaround() {
 }
 
 
-void loop()
-{
-  // Empty. Things are done in Tasks.
+
+/*/////////////////////////////////////////////////////////////////////////////
+Loop is unused as management is performed with with FreeRTOS tasks.
+/////////////////////////////////////////////////////////////////////////////*/
+void loop(){
+
 }
 
-/*--------------------------------------------------*/
-/*---------------------- Tasks ---------------------*/
-/*--------------------------------------------------*/
 
-void TaskConnectToAWS(void *pvParameters)  // This is a task.
-{
+
+/*/////////////////////////////////////////////////////////////////////////////
+FreeRTOS task
+Add documentation here.
+/////////////////////////////////////////////////////////////////////////////*/
+void TaskConnectToAWS(void *pvParameters) {
   (void) pvParameters;
 
-/*
+  /*
   Blink
   Turns on an LED on for one second, then off for one second, repeatedly.
-    
+
   If you want to know what pin the on-board LED is connected to on your ESP32 model, check
   the Technical Specs of your board.
-*/
+  */
 
   // initialize digital LED_BUILTIN on pin 13 as an output.
   //pinMode(LED_BUILTIN, OUTPUT);
@@ -514,14 +607,14 @@ void TaskConnectToAWS(void *pvParameters)  // This is a task.
     digitalWrite(green, LOW);
     //ledcWrite(driveChannel, 50);
     #endif
-    
-    mqttLoop(); 
-    
+
+    mqttLoop();
+
     #if tim
     digitalWrite(green, HIGH);
     #endif
-    
-    //delay(10);    
+
+    //delay(10);
     //digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
     //vTaskDelay(100);  // one tick delay (15ms) in between reads for stability
     //digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
@@ -529,25 +622,30 @@ void TaskConnectToAWS(void *pvParameters)  // This is a task.
   }
 }
 
-void TaskSensorUpdate(void *pvParameters)  // This is a task.
-{
+
+
+/*/////////////////////////////////////////////////////////////////////////////
+FreeRTOS task
+Add documentation here.
+/////////////////////////////////////////////////////////////////////////////*/
+void TaskSensorUpdate(void *pvParameters) {
   (void) pvParameters;
-  
-/*
+
+  /*
   AnalogReadSerial
   Reads an analog input on pin A3, prints the result to the serial monitor.
   Graphical representation is available using serial plotter (Tools > Serial Plotter menu)
   Attach the center pin of a potentiometer to pin A3, and the outside pins to +5V and ground.
 
   This example code is in the public domain.
-*/
+  */
 
   for (;;)
   {
     distanceValue = distanceSensor();
 
 
-    
+
     // read the input on analog pin A3:
     //int distanceValue = analogRead(A3);
     // print out the value you read:
