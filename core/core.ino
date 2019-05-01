@@ -112,7 +112,8 @@ const int echoPin = 2;
 Other properties
 /////////////////////////////////////////////////////////////////////////////*/
 long duration;
-int distanceValue;
+double headingValue;     // David's imu heading value
+int distanceValue;  // Tim's front ultrasonic measured distance
 int velocity = 0;
 bool turn = false;
 const char *endpoint = "a2u5z8rto6rhmx-ats.iot.us-west-2.amazonaws.com";
@@ -217,7 +218,6 @@ const char* privateKey = "-----BEGIN RSA PRIVATE KEY-----\n"
 
 /*/////////////////////////////////////////////////////////////////////////////
 David's vehicle's properties
-//sprintf(pubMessage, "{\"car\":\"%s\",\"dist\":\"%d\"}", car, distanceValue);
 /////////////////////////////////////////////////////////////////////////////*/
 #if david
 char car[5] = "car2";
@@ -536,6 +536,11 @@ void mqttLoop() {
         //dummyValue = dummyValue + 100;
         //sprintf(pubMessage, "{\"car1\":\"%d\"}", dist); // dummyValue++); // {\"desired\":{\"message\":\"%d\"}}}", dummyValue++);
         sprintf(pubMessage, "{\"car\":\"%s\",\"dist\":\"%d\"}", car, distanceValue);
+
+        // Log heading value from the IMU on David's vehicle
+        #if david
+            sprintf(pubMessage, "{\"car\":\"%s\",\"heading\":\"%d\"}", car, headingValue);
+        #endif
         Serial.print("Publishing message to topic ");
         Serial.println(pubTopic);
         Serial.println(pubMessage);
@@ -726,47 +731,15 @@ void TaskIMUUpdate(void *pvParameters) {
       sensors_event_t mag_event;
       sensors_event_t bmp_event;
       sensors_vec_t   orientation;
-
-      /* Calculate pitch and roll from the raw accelerometer data */
-      accel.getEvent(&accel_event);
-      if (dof.accelGetOrientation(&accel_event, &orientation)) {
-        /* 'orientation' should have valid .roll and .pitch fields */
-        Serial.print(F("Roll: "));
-        Serial.print(orientation.roll);
-        Serial.print(F("; "));
-        Serial.print(F("Pitch: "));
-        Serial.print(orientation.pitch);
-        Serial.print(F("; "));
-      }
-
       /* Calculate the heading using the magnetometer */
       mag.getEvent(&mag_event);
       if (dof.magGetOrientation(SENSOR_AXIS_Z, &mag_event, &orientation)) {
         /* 'orientation' should have valid .heading data now */
         Serial.print(F("Heading: "));
         Serial.print(orientation.heading);
+        headingValue = orientation.heading;
         Serial.print(F("; "));
       }
-
-      /* Calculate the altitude using the barometric pressure sensor */
-      bmp.getEvent(&bmp_event);
-      if (bmp_event.pressure) {
-        /* Get ambient temperature in C */
-        float temperature;
-        bmp.getTemperature(&temperature);
-        /* Convert atmospheric pressure, SLP and temp to altitude    */
-        Serial.print(F("Alt: "));
-        Serial.print(bmp.pressureToAltitude(seaLevelPressure,
-                                            bmp_event.pressure,
-                                            temperature));
-        Serial.print(F(" m; "));
-        /* Display the temperature */
-        Serial.print(F("Temp: "));
-        Serial.print(temperature);
-        Serial.print(F(" C"));
-      }
-
-      Serial.println(F(""));
     #endif
     vTaskDelay(1000);  // one tick delay (15ms) in between reads for stability
   }
