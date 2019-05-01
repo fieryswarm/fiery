@@ -539,7 +539,9 @@ void mqttLoop() {
 
         // Log heading value from the IMU on David's vehicle
         #if david
-            sprintf(pubMessage, "{\"car\":\"%s\",\"heading\":\"%d\"}", car, headingValue);
+            //sprintf(pubMessage, "{\"car\":\"%s\",\"heading\":\"%d\"}", car, headingValue);
+            // Send five decimal places of precision
+            sprintf(pubMessage, "{\"car\":\"%s\",\"heading\":\"%0.5f\"}", car, headingValue);
         #endif
         Serial.print("Publishing message to topic ");
         Serial.println(pubTopic);
