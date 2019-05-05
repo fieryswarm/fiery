@@ -19,11 +19,8 @@ Switch for different vehicle configurations.
 Set this value before flashing.
 /////////////////////////////////////////////////////////////////////////////*/
 #if 1
-#define tim 1
-#define david 0
-#else
-#define david 1
 #define tim 0
+#define david 1
 #endif
 
 
@@ -32,14 +29,14 @@ Set this value before flashing.
 Network properties
 Set these values before flashing.
 /////////////////////////////////////////////////////////////////////////////*/
-//char *ssid = "Headquarters";
-//char *password = "@@Casa55";
+char *ssid = "Think";
+char *password = "6sWFMIT5";
 //char *ssid = "titan-share";
 //char *password = "titanrover";
 //char *ssid = "ASUS_ACM";
 //char *password = "fullerton306";
-char *ssid = "MasterMobile";
-char *password = "titanrover";
+//char *ssid = "MasterMobile";
+//char *password = "titanrover";
 
 
 
@@ -112,8 +109,8 @@ const int echoPin = 2;
 Other properties
 /////////////////////////////////////////////////////////////////////////////*/
 long duration;
-double headingValue;     // David's imu heading value
-int distanceValue;  // Tim's front ultrasonic measured distance
+double headingValue_david;     // David's IMU heading value
+int distanceValue;  // Front ultrasonic measured distance
 int velocity = 0;
 bool turn = false;
 const char *endpoint = "a2u5z8rto6rhmx-ats.iot.us-west-2.amazonaws.com";
@@ -533,15 +530,11 @@ void mqttLoop() {
     long now = millis();
     if (now - messageSentAt > 507 && !turn) {
         messageSentAt = now;
-        //dummyValue = dummyValue + 100;
-        //sprintf(pubMessage, "{\"car1\":\"%d\"}", dist); // dummyValue++); // {\"desired\":{\"message\":\"%d\"}}}", dummyValue++);
-        sprintf(pubMessage, "{\"car\":\"%s\",\"dist\":\"%d\"}", car, distanceValue);
-
-        // Log heading value from the IMU on David's vehicle
+        #if tim
+            sprintf(pubMessage, "{\"car\":\"%s\",\"dist\":\"%d\"}", car, distanceValue);
+        #endif
         #if david
-            //sprintf(pubMessage, "{\"car\":\"%s\",\"heading\":\"%d\"}", car, headingValue);
-            // Send five decimal places of precision
-            sprintf(pubMessage, "{\"car\":\"%s\",\"heading\":\"%0.5f\"}", car, headingValue);
+            sprintf(pubMessage, "{\"car\":\"%s\",\"heading\":\"%0.5f\",\"dist\":\"%d\"}",car,headingValue_david,distanceValue);
         #endif
         Serial.print("Publishing message to topic ");
         Serial.println(pubTopic);
@@ -657,7 +650,6 @@ void TaskConnectToAWS(void *pvParameters) {
   /*
   Blink
   Turns on an LED on for one second, then off for one second, repeatedly.
-
   If you want to know what pin the on-board LED is connected to on your ESP32 model, check
   the Technical Specs of your board.
   */
@@ -701,7 +693,6 @@ void TaskSensorUpdate(void *pvParameters) {
   Reads an analog input on pin A3, prints the result to the serial monitor.
   Graphical representation is available using serial plotter (Tools > Serial Plotter menu)
   Attach the center pin of a potentiometer to pin A3, and the outside pins to +5V and ground.
-
   This example code is in the public domain.
   */
 
@@ -739,7 +730,7 @@ void TaskIMUUpdate(void *pvParameters) {
         /* 'orientation' should have valid .heading data now */
         Serial.print(F("Heading: "));
         Serial.print(orientation.heading);
-        headingValue = orientation.heading;
+        headingValue_david = orientation.heading;
         Serial.print(F("; "));
       }
     #endif
