@@ -392,7 +392,6 @@ IMU functions
 Currently David's vehicle only
 /////////////////////////////////////////////////////////////////////////////*/
 void initSensors(){
-  #if david
     if(!accel.begin()) {
         Serial.println(F("No LSM303 detected - Check vehicle wiring"));
         while(1);
@@ -405,7 +404,6 @@ void initSensors(){
         Serial.println("No BMP180 detected - Check vehicle wiring");
         while(1);
     }
-  #endif
 }
 
 
