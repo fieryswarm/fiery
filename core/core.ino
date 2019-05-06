@@ -520,7 +520,7 @@ void setup() {
     xTaskCreatePinnedToCore(
       TaskSensorUpdate
       ,  "AnalogReadA3"
-      ,  1024  // Stack size
+      ,  4096  // Stack size
       ,  NULL
       ,  1  // Priority
       ,  NULL
