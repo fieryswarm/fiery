@@ -271,8 +271,53 @@ Zach's vehicle's properties
     char car[5] = "car3";
     char *pubTopic = "$aws/things/rover_thing3/shadow/update";
     char *subTopic = "$aws/things/rover_thing3/shadow/update/delta";
-    const char* certificate = "";
-    const char* privateKey = "";
+    const char* certificate = "-----BEGIN CERTIFICATE-----\n"
+"MIIDWTCCAkGgAwIBAgIURbT3MDV9psmPVruvxOPFf25vGJEwDQYJKoZIhvcNAQEL\n"
+"BQAwTTFLMEkGA1UECwxCQW1hem9uIFdlYiBTZXJ2aWNlcyBPPUFtYXpvbi5jb20g\n"
+"SW5jLiBMPVNlYXR0bGUgU1Q9V2FzaGluZ3RvbiBDPVVTMB4XDTE5MDUwNTIzMjMx\n"
+"NVoXDTQ5MTIzMTIzNTk1OVowHjEcMBoGA1UEAwwTQVdTIElvVCBDZXJ0aWZpY2F0\n"
+"ZTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMwKrdc6jaFYDXjhDWrO\n"
+"57DWgJg1403qQYHu2lOMujAKlvH7oM4T+61a1smxKtJGP7Mk3hGY/dNmvqq1hk/5\n"
+"dkJUwJB8R3vIH3iKZpJlLyB9JqfuGXZaJ77dLrIA7/hRVFObTu3zpyvxwYd6d4H7\n"
+"o0RpX90RRiy+WGEqOsE4JbOegtsn675SE7aAViQYdVP+1YH2u4j3JCB+BWxma1o+\n"
+"W0KlURHS6acktWyIW9n4gyUe+znXnAJzThPm0E0CXlKR3iD7OUdF6s7eReBQvxIb\n"
+"Tqiak1nl3sI1S+Vr6QEFk+6I2lX1pll34XldFrmjgZWOcnzajnFZ2gNm51mSBlQ3\n"
+"lpMCAwEAAaNgMF4wHwYDVR0jBBgwFoAU90v3heku28ukH+Gj9cHFuZJfrhowHQYD\n"
+"VR0OBBYEFJ+BG+Q2NdXkVazyaulkQoLMLEC5MAwGA1UdEwEB/wQCMAAwDgYDVR0P\n"
+"AQH/BAQDAgeAMA0GCSqGSIb3DQEBCwUAA4IBAQCfpczACI+SGTFqUsYQzUSVCBkA\n"
+"bFZScgRWWDGdjEeQt8WzqyouSicqfbl7u1fDSyHP0WEfI5IeePRKfTCiz5jx8LED\n"
+"eb3hMoXeMz26koWzYXjgTzgZx1ft2dERB+kV9J8OVEWexrZwIfGtZShXzQa7dBav\n"
+"vvy1zV3zkmp80sMGOArn5cstoKeFi+qzq+wRO96eUt1o7Dl43GcbAYQp8r6Dtw6h\n"
+"/2fRENxVSmSWxWLP4MUq4xAr44Wg4WuK2D3D46q0RrMQm202x3mgTqJZeXxysHKr\n"
+"+6Y6jpr6w3YEEhi0ItdpTa0BNHd265WBR3GUGBgOC7fStYAg7vyUteTV3Mcm\n"
+"-----END CERTIFICATE-----\n";
+    const char* privateKey = "-----BEGIN RSA PRIVATE KEY-----\n"
+"MIIEpgIBAAKCAQEAzAqt1zqNoVgNeOENas7nsNaAmDXjTepBge7aU4y6MAqW8fug\n"
+"zhP7rVrWybEq0kY/syTeEZj902a+qrWGT/l2QlTAkHxHe8gfeIpmkmUvIH0mp+4Z\n"
+"dlonvt0usgDv+FFUU5tO7fOnK/HBh3p3gfujRGlf3RFGLL5YYSo6wTgls56C2yfr\n"
+"vlITtoBWJBh1U/7Vgfa7iPckIH4FbGZrWj5bQqVREdLppyS1bIhb2fiDJR77Odec\n"
+"AnNOE+bQTQJeUpHeIPs5R0Xqzt5F4FC/EhtOqJqTWeXewjVL5WvpAQWT7ojaVfWm\n"
+"WXfheV0WuaOBlY5yfNqOcVnaA2bnWZIGVDeWkwIDAQABAoIBAQDIU9PJ9JsJRcI0\n"
+"ZAEgVHP1kyQ+TOoWnWAjibahQRGsCTmZ60s+CTCYSw+GhoNcX8w6vn+pF2ReIgog\n"
+"4Ig2DN6m0T8enGYyiZEccAW0xdM3OqixR3uIT4umQNKPwYvZaUA5tcoQpaAD7R/t\n"
+"O7gJzl3F1Q9hpIwZceijvSpiehXJ+ptQ8Z6U2oNxxcecpX3+OBJyTFYl1hOiJ+ol\n"
+"WP5q1fScZErWhF+3xZvsamzHiCDQ9BFfauJJIxFNuoKFbqUvyyJM1Z0YOe9E+kgP\n"
+"adY8lUj7biNfG59rPbWGLXgXRCYoyu7DyexnpK0aeiBPwQbTdvG4ifTaJjKP/5Uh\n"
+"UFNQ6FHBAoGBAP8US9YTBsEh8ciP3AbuD3Qax6xIJMxhOHgl2VJUG6Ygsj/4wFJi\n"
+"ePNNcB5xOD4ly2WlPkPThixzqoszYt3ZscRz2/YdH7rgLjhBhBb+m4SOKj0Yd4lF\n"
+"iqZ3V9hkjM2N3hHbjfDuOn2QE6h55jlwDEr8zSTq/fOWQGwEWhz/gcW/AoGBAMzH\n"
+"ONYEcVM7Tb5tQdTnhK/yiSI28BjSCWDKJriRLcEfbnBRosBHe4XUVcrROdKhuuRH\n"
+"jltRgMan2/Rh1pZYSANtj2NSCN/zXEJq8U0NPyeU+9DnQ3+Bc81L0YyhMonqMg7L\n"
+"FrQLRXS4ZpMpvYKhVO/FEx615jW4KZzIETiMVSwtAoGBAN8R/9Qh5XlG1yxfarsA\n"
+"u7D8rnvix5OYvgqMhwYxmdBprZi2UHJ7vWyA3zkwKFBpOvwUS2SDekYrjQyZDrAW\n"
+"7hhwff84rwP9g04dNYfqd1SwAw5U9Eyu7TbxDXinTl+A3qDdUb9OhwZB1n8yw3yd\n"
+"mZKGjFzpyNaaIpKUJ75OUE3/AoGBAJIJ2fy3OmKTPoR5wqMlYTlhjG78IwpwcAO4\n"
+"5xhlYO4Djm1HqvvZfrwYi/6Sa9xNPs2iQmHZpC8IcxK7259o4iKftcytKmscUUWE\n"
+"owXCVrHRzCxVYYvDNGTKl2zlYPd+L6jhKRXJnAT7pRt6fw50I/DC6TnTm5Pf/L00\n"
+"6SMc4XkZAoGBAJ0cnysTCl/qm9pTAYdLKy66U8VUnBmPVpAKX+l2KOFKYn5zq/Of\n"
+"9hV/QL08iGr3gM8aPjuaLOO3oO1fvmPCUZLfbxNSzIop60ZVbnyNA2YZN1asBvaw\n"
+"Y2fEWAHnO9YYdvLLOOjT131K+y010nYoqium9h2Gf+NC7bCB7lo/Src+\n"
+"-----END RSA PRIVATE KEY-----\n";
 #endif
 
 
