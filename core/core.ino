@@ -21,7 +21,7 @@ Set this value before flashing.
 #if 1
 #define tim 0
 #define david 0
-#define zach 1
+#define zach 0
 #define evan 0
 #endif
 
