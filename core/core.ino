@@ -21,7 +21,7 @@ Set this value before flashing.
 #if 1
 #define tim 0
 #define david 0
-#define zach 0
+#define zach 1
 #define evan 0
 #endif
 
@@ -391,6 +391,7 @@ PubSubClient mqttClient(httpsClient);
 IMU functions
 Currently David's vehicle only
 /////////////////////////////////////////////////////////////////////////////*/
+#if david
 void initSensors(){
     if(!accel.begin()) {
         Serial.println(F("No LSM303 detected - Check vehicle wiring"));
@@ -405,6 +406,7 @@ void initSensors(){
         while(1);
     }
 }
+#endif
 
 
 
@@ -814,6 +816,6 @@ void TaskSensorUpdate(void *pvParameters) {
     //int distanceValue = analogRead(A3);
     // print out the value you read:
     //Serial.println(distanceValue);
-    vTaskDelay(1000);  // one tick delay (15ms) in between reads for stability
+    vTaskDelay(15);  // one tick delay (15ms) in between reads for stability
   }
 }
