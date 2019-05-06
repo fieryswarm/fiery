@@ -19,9 +19,9 @@ Switch for different vehicle configurations.
 Set this value before flashing.
 /////////////////////////////////////////////////////////////////////////////*/
 #if 1
-    #define tim 0
+    #define tim 1
     #define david 0
-    #define zach 1
+    #define zach 0
     #define evan 0
 #endif
 
@@ -584,12 +584,12 @@ void mqttCallback (char* topic, byte* payload, unsigned int length) {
     switch(total){
       case 558:
         Serial.println("Lets drive");digitalWrite(drive_enable,  HIGH);digitalWrite(turn_enable, LOW);
-        velocity = 240;
+        velocity = 200;
         ledcWrite(driveChannel, velocity);
         break;
       case 529:
         Serial.println("Speed");digitalWrite(drive_enable,  HIGH);digitalWrite(turn_enable, LOW);
-        if (velocity < 240){ velocity = velocity + 10; }
+        if (velocity < 200){ velocity = velocity + 10; }
         ledcWrite(driveChannel, velocity);
         break;
       case 485:
@@ -607,11 +607,11 @@ void mqttCallback (char* topic, byte* payload, unsigned int length) {
         break;
       case 459:
         Serial.println("Turning Left"); digitalWrite(turn_direction, LOW); digitalWrite(turn_enable, HIGH);
-        ledcWrite(turnChannel, 240);
+        ledcWrite(turnChannel, 180);
         break;
       case 542:
         Serial.println("Turning Right"); digitalWrite(turn_direction, HIGH); digitalWrite(turn_enable, HIGH);
-        ledcWrite(turnChannel, 240);
+        ledcWrite(turnChannel, 180);
         break;
     }
 }
@@ -816,6 +816,6 @@ void TaskSensorUpdate(void *pvParameters) {
     //int distanceValue = analogRead(A3);
     // print out the value you read:
     //Serial.println(distanceValue);
-    vTaskDelay(15);  // one tick delay (15ms) in between reads for stability
+    vTaskDelay(100);  // one tick delay (15ms) in between reads for stability
   }
 }
