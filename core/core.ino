@@ -329,8 +329,53 @@ Evan's vehicle's properties
     char car[5] = "car4";
     char *pubTopic = "$aws/things/rover_thing4/shadow/update";
     char *subTopic = "$aws/things/rover_thing4/shadow/update/delta";
-    const char* certificate = "";
-    const char* privateKey = "";
+    const char* certificate = "-----BEGIN CERTIFICATE-----\n"
+"MIIDWjCCAkKgAwIBAgIVAJfRDAZciignmuXxLsErmkAKVLmzMA0GCSqGSIb3DQEB\n"
+"CwUAME0xSzBJBgNVBAsMQkFtYXpvbiBXZWIgU2VydmljZXMgTz1BbWF6b24uY29t\n"
+"IEluYy4gTD1TZWF0dGxlIFNUPVdhc2hpbmd0b24gQz1VUzAeFw0xOTA1MDYwMDAz\n"
+"MTFaFw00OTEyMzEyMzU5NTlaMB4xHDAaBgNVBAMME0FXUyBJb1QgQ2VydGlmaWNh\n"
+"dGUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDdcM9/m3YTCFRTX85t\n"
+"1eaXxw5oMClUXgIdQAT9OF5AJffQCWsUnQyqVlQ8qdLzGbPg4LVTjzpvfLyO2HvN\n"
+"kYDteotyHofMV09DtUKjyZKUcxOXkmjieBXERV/Xk8JPK9hijhQnKPjcyvNl2GX0\n"
+"ioEJMsaWT+dpk7ZezesrLdABXlLs5e1HNGYUIrMGJ5nhMgkRqMhWyNcBV1hb4nzg\n"
+"8riPxSiuMF+WCSLMrnf7I5czZkO8KeL0Jgyw6td6JNTyIKyKZsIZ4Cy6y1mWTasW\n"
+"ywIWYuy9Bplhn7ykgRva/ICa2OcQReFY+8gAv1VL7wcJdKGr1Jf/gy90q13797p7\n"
+"r+kVAgMBAAGjYDBeMB8GA1UdIwQYMBaAFKcTl26/eKH91qrtKxHyVwtBXeyMMB0G\n"
+"A1UdDgQWBBSBZgCCYmYy5GNIeLfI5cU3kr1PPjAMBgNVHRMBAf8EAjAAMA4GA1Ud\n"
+"DwEB/wQEAwIHgDANBgkqhkiG9w0BAQsFAAOCAQEATWDYXILpjwUW+QQVXIFuC++i\n"
+"H38JacEdgATeTNvXG0YfV7uoC3WwWL1d8BLL9cfyhYE+jvcrMMrR4eEfDv2l5rF4\n"
+"AxBgpgfS4tit38q940uSuAchTWjcitdv5v07LzzLMzFQEDpIjRLa5z98hOlHqBX+\n"
+"w2yCSHnerGWjSCokZsuWD6UIPgCm//4tv3KjYQMghoFhD75pIhUUBsT15ovd28cG\n"
+"GvLr3bbVF+dA7CVfZoD9tWm9noBcKG6kOwVVWcXV7Er4ruSs6rmiXGjkP0lN9TLm\n"
+"+dnTBALnBWTHwTNtW3xw+hxUhpOIRLVpGYmQll14k9bAevA3F2YRDQmCLCiLiA==\n"
+"-----END CERTIFICATE-----";
+    const char* privateKey = "-----BEGIN RSA PRIVATE KEY-----\n"
+"MIIEpgIBAAKCAQEA3XDPf5t2EwhUU1/ObdXml8cOaDApVF4CHUAE/TheQCX30Alr\n"
+"FJ0MqlZUPKnS8xmz4OC1U486b3y8jth7zZGA7XqLch6HzFdPQ7VCo8mSlHMTl5Jo\n"
+"4ngVxEVf15PCTyvYYo4UJyj43MrzZdhl9IqBCTLGlk/naZO2Xs3rKy3QAV5S7OXt\n"
+"RzRmFCKzBieZ4TIJEajIVsjXAVdYW+J84PK4j8UorjBflgkizK53+yOXM2ZDvCni\n"
+"9CYMsOrXeiTU8iCsimbCGeAsustZlk2rFssCFmLsvQaZYZ+8pIEb2vyAmtjnEEXh\n"
+"WPvIAL9VS+8HCXShq9SX/4MvdKtd+/e6e6/pFQIDAQABAoIBAQC3SVmmcKHxrPJH\n"
+"NESj6ul7dVp6aGq9Fza+yS+X/GEezY5plnIYVMmX7+63a4VcjEiz+Kp9aE7g2qkj\n"
+"vxHyG95QMh9brOOQAjBshYqMERsPXpS334qK8QRrOVTUFcw+RbdME/egVixubFm8\n"
+"UbpKB544Y9u1rJuJaqcHn39odPn3NnVbU7wOCEVKd4IqdoFIiOM7RuCoMQdz0vgj\n"
+"G/WTx5Who1KtcIPmXlf/hi1nYJsqds947CEP0rwGRCc2gNn6J+CVcvCvBkzi8nML\n"
+"qU2KnSGlMGDs2uuPnL/BuyOrGcuQa6/2GgVvFC2EQkFvO28FMUwNQQeH3AlkdBG9\n"
+"qiPof0D9AoGBAP+9MMEGYusoG2VPE2X9TCjPsmpF9zfoFtA/n7qxRNO2GD7JzeSc\n"
+"QXgknLj33zBdYxQW0HAaR+T1e9nkXdnb90u7lShir+bOeDebbEsNphXcSPlJkEIE\n"
+"UaRYxlLU/24JUhsw6EDeabUO4mXt+JTnMhWQI0SwicRcODGQgG9GtjMXAoGBAN2q\n"
+"qPKwG6NfYlAWz+MLEBdtBCv6qIlj8peW5F+Zx0lmNmoeDwbheWizJkQg1XAy5Mef\n"
+"q1HTTd3+HekFFRQmoMh7Bku8/4XcBJMnWVW10Qt+54PVRDEUKdba92rURKvKNsTX\n"
+"etUPoxzZPRfB6fnmuCp9sGzP8QHe/DP6CGMIJVCzAoGBAPrJgOIJbT/GGPeEUDWX\n"
+"6/OpmgD1k7XTd2vIuM7Pv/sNe0E3jR0+zkUPQlFxYgF/0wWESetlGlPBGC9Y72AR\n"
+"gbVWwrLT9EOW/fUqCUygmdqeJ0GvjjPvIFDWbcYU8lfp9AaOM3RJp8fSTNpAP6Fm\n"
+"B4t1yeA2byOMe96/IfP9l/cJAoGBALbbpLlm+7W+5swotV+XbbPVc56QDV4hPCs/\n"
+"B6+xnMt47SSHHWBQuiXbu5Jx/4CqCz5+AgbjKBYcHjJuxd+0qegYTK5IAAY95Ow7\n"
+"hp+E+CjijDudv7444vbh9T6EUw3gJ2QkWajPWIBg2NvzVH+Zi41J2DM7Kpafiy+Z\n"
+"cDe5rYavAoGBAIXlM6aAYM3kykz2om4S7omEh5yJj1nvc7XKBvUaZluxg/hESljx\n"
+"10com2EnLjznMynygW/8jisOhnf72KaHlJJdRc5dwOzn6PAxIHK8hgj8QO1IToPO\n"
+"mefEQXbA3DIRKTqba5a5g6EnZiyl8o50XxDqtng8IZBP13Q54x8qVDac\n"
+"-----END RSA PRIVATE KEY-----";
 #endif
 
 
