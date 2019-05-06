@@ -816,6 +816,6 @@ void TaskSensorUpdate(void *pvParameters) {
     //int distanceValue = analogRead(A3);
     // print out the value you read:
     //Serial.println(distanceValue);
-    vTaskDelay(10);  // one tick delay (15ms) in between reads for stability
+    vTaskDelay(1000);  // one tick delay (15ms) in between reads for stability
   }
 }
