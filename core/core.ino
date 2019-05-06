@@ -807,26 +807,6 @@ void TaskSensorUpdate(void *pvParameters) {
   for (;;)
   {
     distanceValue = distanceSensor();
-
-
-
-    // read the input on analog pin A3:
-    //int distanceValue = analogRead(A3);
-    // print out the value you read:
-    //Serial.println(distanceValue);
-    vTaskDelay(10);  // one tick delay (15ms) in between reads for stability
-  }
-}
-
-
-
-/*/////////////////////////////////////////////////////////////////////////////
-FreeRTOS task
-Add documentation here.
-/////////////////////////////////////////////////////////////////////////////*/
-void TaskIMUUpdate(void *pvParameters) {
-  (void) pvParameters;
-  for (;;) {
     #if david
       sensors_event_t accel_event;
       sensors_event_t mag_event;
@@ -842,6 +822,10 @@ void TaskIMUUpdate(void *pvParameters) {
         Serial.print(F("; "));
       }
     #endif
-    vTaskDelay(1000);  // one tick delay (15ms) in between reads for stability
+    // read the input on analog pin A3:
+    //int distanceValue = analogRead(A3);
+    // print out the value you read:
+    //Serial.println(distanceValue);
+    vTaskDelay(10);  // one tick delay (15ms) in between reads for stability
   }
 }
