@@ -584,12 +584,12 @@ void mqttCallback (char* topic, byte* payload, unsigned int length) {
     switch(total){
       case 558:
         Serial.println("Lets drive");digitalWrite(drive_enable,  HIGH);digitalWrite(turn_enable, LOW);
-        velocity = 200;
+        velocity = 120;
         ledcWrite(driveChannel, velocity);
         break;
       case 529:
         Serial.println("Speed");digitalWrite(drive_enable,  HIGH);digitalWrite(turn_enable, LOW);
-        if (velocity < 200){ velocity = velocity + 10; }
+        if (velocity < 120){ velocity = velocity + 10; }
         ledcWrite(driveChannel, velocity);
         break;
       case 485:
@@ -806,8 +806,8 @@ void TaskSensorUpdate(void *pvParameters) {
       mag.getEvent(&mag_event);
       if (dof.magGetOrientation(SENSOR_AXIS_Z, &mag_event, &orientation)) {
         /* 'orientation' should have valid .heading data now */
-        Serial.print(F("Heading: "));
-        Serial.print(orientation.heading);
+        //Serial.print(F("Heading: "));
+        //Serial.print(orientation.heading);
         headingValue = orientation.heading;
         Serial.print(F("; "));
       }
