@@ -19,10 +19,10 @@ Switch for different vehicle configurations.
 Set this value before flashing.
 /////////////////////////////////////////////////////////////////////////////*/
 #if 1
-#define tim 0
-#define david 0
-#define zach 1
-#define evan 0
+    #define tim 0
+    #define david 0
+    #define zach 1
+    #define evan 0
 #endif
 
 
@@ -392,20 +392,20 @@ IMU functions
 Currently David's vehicle only
 /////////////////////////////////////////////////////////////////////////////*/
 #if david
-void initSensors(){
-    if(!accel.begin()) {
-        Serial.println(F("No LSM303 detected - Check vehicle wiring"));
-        while(1);
+    void initSensors(){
+        if(!accel.begin()) {
+            Serial.println(F("No LSM303 detected - Check vehicle wiring"));
+            while(1);
+        }
+        if(!mag.begin()) {
+            Serial.println("No LSM303 detected - Check vehicle wiring");
+            while(1);
+        }
+        if(!bmp.begin()) {
+            Serial.println("No BMP180 detected - Check vehicle wiring");
+            while(1);
+        }
     }
-    if(!mag.begin()) {
-        Serial.println("No LSM303 detected - Check vehicle wiring");
-        while(1);
-    }
-    if(!bmp.begin()) {
-        Serial.println("No BMP180 detected - Check vehicle wiring");
-        while(1);
-    }
-}
 #endif
 
 
