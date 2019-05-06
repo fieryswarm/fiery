@@ -108,7 +108,6 @@ void connectAWSIoT();
 void mqttCallback (char* topic, byte* payload, unsigned int length);
 void TaskConnectToAWS( void *pvParameters );
 void TaskSensorUpdate( void *pvParameters );
-void TaskIMUUpdate( void *pvParameters );
 
 
 
@@ -526,15 +525,6 @@ void setup() {
       ,  1024  // Stack size
       ,  NULL
       ,  1  // Priority
-      ,  NULL
-      ,  ARDUINO_RUNNING_CORE
-    );
-    xTaskCreatePinnedToCore(
-      TaskIMUUpdate
-      ,  "TaskIMUUpdate"   // A name just for humans
-      ,  1024  // Stack size
-      ,  NULL
-      ,  3  // Priority
       ,  NULL
       ,  ARDUINO_RUNNING_CORE
     );
